@@ -1,6 +1,6 @@
-# Clans API
+# Clans API - Cloud Run Deployment
 
-A lightweight REST API for managing clans, designed to run on Google Cloud Run with Cloud SQL.
+A REST API for managing clans, designed specifically for Google Cloud Run with Cloud SQL.
 
 ## Features
 
@@ -69,71 +69,29 @@ CREATE TABLE clans (
 );
 ```
 
-## Local Development
+## Deployment to Google Cloud Run
 
-1. Install dependencies:
+### Prerequisites
+1. Google Cloud project
+2. gcloud CLI installed and authenticated
+3. Cloud SQL PostgreSQL instance created
+
+### Setup Cloud SQL Database
+1. Connect to your Cloud SQL instance:
 ```bash
-npm install
+gcloud sql connect clans-db --user=postgres
 ```
 
-2. Set up environment variables in `.env`:
-```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=clans_db
-DB_USER=postgres
-DB_PASSWORD=your_password
+2. Create database and schema:
+```sql
+CREATE DATABASE clans_db;
+\c clans_db
+-- Then run the contents of schema.sql
 ```
 
-3. Run the database schema:
+### Deploy to Cloud Run
+
+Run the deployment script:
 ```bash
-psql -U postgres -d clans_db -f schema.sql
+./deploy.sh PROJECT_ID
 ```
-
-4. Start the development server:
-```bash
-npm run dev
-```
-
-## Docker Deployment
-
-1. Build the Docker image:
-```bash
-docker build -t clans-api .
-```
-
-2. Run the container:
-```bash
-docker run -p 8080:8080 --env-file .env clans-api
-```
-
-## Google Cloud Run Deployment
-
-1. Build and push to Google Container Registry:
-```bash
-gcloud builds submit --tag gcr.io/PROJECT_ID/clans-api
-```
-
-2. Deploy to Cloud Run:
-```bash
-gcloud run deploy clans-api \
-  --image gcr.io/PROJECT_ID/clans-api \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --add-cloudsql-instances CONNECTION_NAME \
-  --set-env-vars DB_HOST=/cloudsql/CONNECTION_NAME,DB_NAME=clans_db,DB_USER=postgres,DB_PASSWORD=your_password
-```
-
-## Environment Variables
-
-- `PORT`: Server port (default: 8080)
-- `DB_HOST`: Database host
-- `DB_PORT`: Database port (default: 5432)
-- `DB_NAME`: Database name
-- `DB_USER`: Database user
-- `DB_PASSWORD`: Database password
-
-## Sample Data
-
-The project supports importing sample clan data. The data should be in UTC timezone format.
